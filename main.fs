@@ -33,6 +33,8 @@ variable check-surrounding-cc
 variable check-surrounding-idx
 variable check-surrounding-data
 
+create in-buf 80 chars allot
+
 : msk-mine $80 ;
 : msk-check $40 ;
 : msk-mark $20 ;
@@ -76,7 +78,7 @@ variable check-surrounding-data
             then
         loop
     loop
-    count-cnt @ 
+    count-cnt @
 ;
 
 : gen
@@ -138,7 +140,7 @@ variable check-surrounding-data
             show-data @ msk-check and if
                 show-data @ msk-mine and if
                     ." * "
-                else 
+                else
                     show-data @ msk-cnt and .
                 then
             else
@@ -183,13 +185,13 @@ variable check-surrounding-data
                 check-surrounding-cc @ is-valid if
                     check-surrounding-rc @ 3 lshift check-surrounding-cc @ +
                         check-surrounding-idx !
-                    board check-surrounding-idx @ + c@ 
+                    board check-surrounding-idx @ + c@
                         check-surrounding-data !
                     check-surrounding-data @ msk-check msk-mark or and 0= if
-                        check-surrounding-data @ msk-check or 
+                        check-surrounding-data @ msk-check or
                             board check-surrounding-idx @ + c!
                         check-surrounding-idx @ check-push-idx
-                        n-check inc 
+                        n-check inc
                     then
                 then
             loop
@@ -209,7 +211,7 @@ variable check-surrounding-data
         state-loss game-state !
         exit
     then
-    
+
     0 check-sp !
     check-data @ msk-check or board check-idx @ + c!
     n-check inc
@@ -221,17 +223,54 @@ variable check-surrounding-data
         check-idx @ 7 and check-c !
         check-idx @ 3 rshift check-r !
         board check-idx @ + c@ check-data !
-        
+
         check-data @ msk-cnt and 0= if
             check-r @ check-c @ check-surrounding
         then
     repeat
-    n-check 54 = if
+    n-check @ 54 = if
         state-win game-state !
     then
 ;
 
-123 seed !
-gen
-reveal-board
-show-board
+: c check-cell ;
+: m mark-cell ;
+
+: srand
+    ." seed: "
+    in-buf 80 accept
+    cr
+    in-buf swap evaluate
+    seed !
+;
+
+: setup
+    srand
+    gen
+;
+
+: main-loop
+    cr
+    setup
+    show-board
+    ." > "
+    in-buf 80 accept
+    cr
+    in-buf swap evaluate
+    begin
+        game-state @ 0=
+    while
+        show-board
+        ." > "
+        in-buf 80 accept
+        cr
+        in-buf swap evaluate
+    repeat
+    game-state @ state-win = if
+        ." Win" cr
+    else
+        ." Loss" cr
+    then
+    reveal-board
+;
+
